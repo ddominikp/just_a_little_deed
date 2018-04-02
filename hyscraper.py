@@ -21,13 +21,20 @@ def clean_and_strip(fragment):
 
 def paste_copied_fragments():
     copied_fragments = []
+    previous_fragments = set()
     try:
         while True:
             fragment = pyperclip.paste()
-            if fragment not in copied_fragments:
-                fragment = clean_and_strip(fragment)
-                copied_fragments.append(fragment)
-                print(fragment)
+            if fragment not in previous_fragments:
+                previous_fragments.add(fragment)
+
+                clean_fragment = clean_and_strip(fragment)
+                copied_fragments.append(clean_fragment)
+
+                print(clean_fragment)
+                print('')
+                print('Number of copied fragments:', len(previous_fragments))
+                print('\n')
             time.sleep(0.5)
 
     except (KeyboardInterrupt, SystemExit): 
@@ -38,7 +45,7 @@ def paste_copied_fragments():
 def vim_edit(copied_fragments):
     with open('editing_place.txt', 'w') as editing_place:
         for fragment in copied_fragments:
-            separated_fragment = fragment + '\n##\n'
+            separated_fragment = fragment + '\n\n\n##\n'
             editing_place.write(separated_fragment)
 
     subprocess.call(['vi', 'editing_place.txt'])
@@ -47,7 +54,7 @@ def load_back_edited():
     with open('editing_place.txt') as editing_place:
         corrected_fragments = editing_place.read()
 
-    corrected_fragments = corrected_fragments.split('\n##\n')
+    corrected_fragments = corrected_fragments.split('\n\n\n##\n')
     return corrected_fragments
 
 def main():
